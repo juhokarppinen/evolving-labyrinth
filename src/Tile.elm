@@ -119,7 +119,7 @@ tileItem { item } =
                     ""
     in
     if filename /= "" then
-        Html.img [ Attr.src ("images/item-" ++ filename ++ ".svg") ] []
+        Html.img [ Attr.src ("/images/item-" ++ filename ++ ".svg") ] []
 
     else
         Html.div [] []
