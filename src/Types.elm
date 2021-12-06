@@ -10,6 +10,7 @@ type alias FrontendModel =
     { key : Key
     , message : String
     , tiles : List Tile
+    , freeTile : Tile
     }
 
 

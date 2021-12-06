@@ -8,6 +8,7 @@ import Html.Events as Events
 import Lamdera
 import Random
 import Random.List
+import Styles
 import Tile exposing (Item(..), Rotation(..), defaultTiles, drawTile, getTile)
 import Types exposing (..)
 import Url
@@ -33,7 +34,8 @@ init : Url.Url -> Nav.Key -> ( Model, Cmd FrontendMsg )
 init url key =
     ( { key = key
       , message = "Welcome to the Evolving Labyrinth! This is a small hobby project for learning Elm with Lamdera."
-      , tiles = []
+      , tiles = defaultTiles
+      , freeTile = getTile 34 defaultTiles
       }
     , Random.generate ShuffleTiles (Random.List.shuffle defaultTiles)
     )
@@ -64,7 +66,7 @@ update msg model =
             ( model, Random.generate ShuffleTiles (Random.List.shuffle defaultTiles) )
 
         ShuffleTiles tiles ->
-            ( { model | tiles = tiles }
+            ( { model | tiles = tiles, freeTile = getTile 34 tiles }
             , Random.generate RandomRotateTiles <|
                 Random.list
                     (List.length tiles)
@@ -86,22 +88,32 @@ updateFromBackend msg model =
 
 view : Model -> Browser.Document FrontendMsg
 view model =
+    let
+        paddingAmount =
+            "40px"
+    in
     { title = ""
     , body =
         [ Html.div
-            [ Attr.style "display" "flex"
-            , Attr.style "flex-direction" "column"
-            , Attr.style "align-items" "center"
-            , Attr.style "justify-content" "center"
-            , Attr.style "padding-top" "40px"
-            ]
-            [ Html.h1 [] [ Html.text "The Evolving Labyrinth" ]
-            , drawLabyrinth model
-            , Html.button [ Events.onClick Shuffle ] [ text "Regenerate" ]
+            (Styles.flexColumnCenter ++ [ Styles.paddingTop paddingAmount ])
+            [ Html.h1
+                []
+                [ Html.text "The Evolving Labyrinth" ]
             , Html.div
-                [ Attr.style "font-family" "sans-serif"
-                , Attr.style "padding-top" "40px"
+                (Styles.flexRowCenter ++ [ Styles.alignStart ])
+                [ Html.div
+                    Styles.flexColumnCenter
+                    [ drawLabyrinth model
+                    , Html.button
+                        [ Events.onClick Shuffle ]
+                        [ text "Regenerate" ]
+                    ]
+                , Html.div
+                    (Styles.flexColumnCenter ++ [ Styles.paddingLeft paddingAmount ])
+                    [ Html.h2 [] [ text "Free tile" ], drawTile model.freeTile ]
                 ]
+            , Html.div
+                [ Attr.style "font-family" "sans-serif", Styles.paddingTop paddingAmount ]
                 [ Html.text model.message ]
             ]
         ]
@@ -116,6 +128,7 @@ drawLabyrinth model =
         , Attr.style "grid-template-rows" "repeat(7, 100px)"
         , Attr.style "background-color" "#1111aa"
         , Attr.style "padding" "10px"
+        , Attr.style "margin-bottom" "10px"
         , Attr.style "border-radius" "5px"
         ]
         ([ Tile.Tile Tile.Angle Tile.Deg90 (Just Tile.HomeBlue)
