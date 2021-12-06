@@ -285,6 +285,7 @@ defaultTiles =
     defaultItemTiles ++ defaultPlainTiles
 
 
+getTile : Int -> List Tile -> Tile
 getTile n list =
     let
         item =

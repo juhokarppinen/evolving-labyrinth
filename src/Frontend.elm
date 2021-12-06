@@ -2,11 +2,13 @@ module Frontend exposing (..)
 
 import Browser exposing (UrlRequest(..))
 import Browser.Navigation as Nav
-import Html exposing (Html)
+import Html exposing (Html, text)
 import Html.Attributes as Attr
+import Html.Events as Events
 import Lamdera
-import Random.List exposing (shuffle)
-import Tile exposing (Item(..), defaultTiles, drawTile, getTile)
+import Random
+import Random.List
+import Tile exposing (Item(..), Rotation(..), defaultTiles, drawTile, getTile)
 import Types exposing (..)
 import Url
 
@@ -31,8 +33,9 @@ init : Url.Url -> Nav.Key -> ( Model, Cmd FrontendMsg )
 init url key =
     ( { key = key
       , message = "Welcome to the Evolving Labyrinth! This is a small hobby project for learning Elm with Lamdera."
+      , tiles = []
       }
-    , Cmd.none
+    , Random.generate ShuffleTiles (Random.List.shuffle defaultTiles)
     )
 
 
@@ -57,6 +60,22 @@ update msg model =
         NoOpFrontendMsg ->
             ( model, Cmd.none )
 
+        Shuffle ->
+            ( model, Random.generate ShuffleTiles (Random.List.shuffle defaultTiles) )
+
+        ShuffleTiles tiles ->
+            ( { model | tiles = tiles }
+            , Random.generate RandomRotateTiles <|
+                Random.list
+                    (List.length tiles)
+                    (Random.uniform Deg0 [ Deg90, Deg180, Deg270 ])
+            )
+
+        RandomRotateTiles rotations ->
+            ( { model | tiles = List.map2 (\t r -> { t | rotation = r }) model.tiles rotations }
+            , Cmd.none
+            )
+
 
 updateFromBackend : ToFrontend -> Model -> ( Model, Cmd FrontendMsg )
 updateFromBackend msg model =
@@ -77,7 +96,8 @@ view model =
             , Attr.style "padding-top" "40px"
             ]
             [ Html.h1 [] [ Html.text "The Evolving Labyrinth" ]
-            , drawLabyrinth
+            , drawLabyrinth model
+            , Html.button [ Events.onClick Shuffle ] [ text "Regenerate" ]
             , Html.div
                 [ Attr.style "font-family" "sans-serif"
                 , Attr.style "padding-top" "40px"
@@ -88,8 +108,8 @@ view model =
     }
 
 
-drawLabyrinth : Html msg
-drawLabyrinth =
+drawLabyrinth : FrontendModel -> Html msg
+drawLabyrinth model =
     Html.div
         [ Attr.style "display" "grid"
         , Attr.style "grid-template-columns" "repeat(7, 100px)"
@@ -99,38 +119,38 @@ drawLabyrinth =
         , Attr.style "border-radius" "5px"
         ]
         ([ Tile.Tile Tile.Angle Tile.Deg90 (Just Tile.HomeBlue)
-         , getTile 1 defaultTiles
+         , getTile 1 model.tiles
          , Tile.Tile Tile.Cross Tile.Deg180 (Just Tile.Helmet)
-         , getTile 2 defaultTiles
+         , getTile 2 model.tiles
          , Tile.Tile Tile.Cross Tile.Deg180 (Just Tile.Candle)
-         , getTile 3 defaultTiles
+         , getTile 3 model.tiles
          , Tile.Tile Tile.Angle Tile.Deg180 (Just Tile.HomeGreen)
          ]
-            ++ (List.range 13 19 |> List.map (\n -> getTile n defaultTiles))
+            ++ (List.range 13 19 |> List.map (\n -> getTile n model.tiles))
             ++ [ Tile.Tile Tile.Cross Tile.Deg90 (Just Tile.Sword)
-               , getTile 4 defaultTiles
+               , getTile 4 model.tiles
                , Tile.Tile Tile.Cross Tile.Deg90 (Just Tile.Diamond)
-               , getTile 5 defaultTiles
+               , getTile 5 model.tiles
                , Tile.Tile Tile.Cross Tile.Deg180 (Just Tile.Chest)
-               , getTile 6 defaultTiles
+               , getTile 6 model.tiles
                , Tile.Tile Tile.Cross Tile.Deg270 (Just Tile.Ring)
                ]
-            ++ (List.range 20 26 |> List.map (\n -> getTile n defaultTiles))
+            ++ (List.range 20 26 |> List.map (\n -> getTile n model.tiles))
             ++ [ Tile.Tile Tile.Cross Tile.Deg90 (Just Tile.Skull)
-               , getTile 7 defaultTiles
+               , getTile 7 model.tiles
                , Tile.Tile Tile.Cross Tile.Deg0 (Just Tile.Deed)
-               , getTile 8 defaultTiles
+               , getTile 8 model.tiles
                , Tile.Tile Tile.Cross Tile.Deg270 (Just Tile.Crown)
-               , getTile 9 defaultTiles
+               , getTile 9 model.tiles
                , Tile.Tile Tile.Cross Tile.Deg270 (Just Tile.Rabbit)
                ]
-            ++ (List.range 27 33 |> List.map (\n -> Tile.rotate Tile.Deg90 (getTile n defaultTiles)))
+            ++ (List.range 27 33 |> List.map (\n -> Tile.rotate Tile.Deg90 (getTile n model.tiles)))
             ++ [ Tile.Tile Tile.Angle Tile.Deg0 (Just Tile.HomeRed)
-               , getTile 10 defaultTiles
+               , getTile 10 model.tiles
                , Tile.Tile Tile.Cross Tile.Deg0 (Just Tile.Purse)
-               , getTile 11 defaultTiles
+               , getTile 11 model.tiles
                , Tile.Tile Tile.Cross Tile.Deg0 (Just Tile.Book)
-               , getTile 12 defaultTiles
+               , getTile 12 model.tiles
                , Tile.Tile Tile.Angle Tile.Deg270 (Just Tile.HomeYellow)
                ]
             |> List.map drawTile
