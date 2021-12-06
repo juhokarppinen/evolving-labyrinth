@@ -22,30 +22,32 @@ type Item
     | HomeGreen
     | HomeRed
     | HomeYellow
-    | Sword
-    | Gem
-    | Helmet
+    | Armor
+    | Book
+    | Butterfly
     | Candle
+    | Cat
     | Chest
+    | Chicken
+    | Crown
+    | Deed
+    | Diamond
+    | Dog
+    | Fairy
+    | Fish
+    | Frog
+    | Ghost
+    | Helmet
+    | Horse
+    | Lion
+    | Pig
+    | Purse
+    | Rabbit
     | Ring
     | Skull
-    | Keys
-    | Crown
-    | Map
-    | Purse
-    | Book
-    | Troll
-    | Fairy
-    | Spirit
-    | Dragon
-    | Ghost
-    | Bat
-    | Rat
-    | Spider
-    | Lizard
-    | Moth
-    | Beetle
-    | Owl
+    | Sword
+    | Turtle
+    | Wasp
 
 
 type Rotation
@@ -115,11 +117,89 @@ tileItem { item } =
                 Just HomeGreen ->
                     "home-green"
 
+                Just Armor ->
+                    "armor"
+
+                Just Book ->
+                    "book"
+
+                Just Butterfly ->
+                    "butterfly"
+
+                Just Candle ->
+                    "candle"
+
+                Just Cat ->
+                    "cat"
+
+                Just Chest ->
+                    "chest"
+
+                Just Chicken ->
+                    "chicken"
+
+                Just Crown ->
+                    "crown"
+
+                Just Deed ->
+                    "deed"
+
+                Just Diamond ->
+                    "diamond"
+
+                Just Dog ->
+                    "dog"
+
+                Just Fairy ->
+                    "fairy"
+
+                Just Fish ->
+                    "fish"
+
+                Just Frog ->
+                    "frog"
+
+                Just Ghost ->
+                    "ghost"
+
+                Just Helmet ->
+                    "helmet"
+
+                Just Horse ->
+                    "horse"
+
+                Just Lion ->
+                    "lion"
+
+                Just Pig ->
+                    "pig"
+
+                Just Purse ->
+                    "purse"
+
+                Just Rabbit ->
+                    "rabbit"
+
+                Just Ring ->
+                    "ring"
+
+                Just Skull ->
+                    "skull"
+
+                Just Sword ->
+                    "sword"
+
                 _ ->
                     ""
     in
     if filename /= "" then
-        Html.img [ Attr.src ("/images/item-" ++ filename ++ ".svg") ] []
+        Html.img
+            [ Attr.src ("/images/item-" ++ filename ++ ".svg")
+            , Attr.style "max-width" "50px"
+            , Attr.style "max-height" "50px"
+            , Attr.style "filter" "drop-shadow(0 0 2px black) "
+            ]
+            []
 
     else
         Html.div [] []
@@ -176,3 +256,48 @@ exits { tileType, rotation } =
 
                 Deg270 ->
                     [ Left, Up ]
+
+
+defaultItemTiles : List Tile
+defaultItemTiles =
+    [ Tile Angle Deg0 (Just Butterfly)
+    , Tile Angle Deg0 (Just Cat)
+    , Tile Angle Deg0 (Just Chicken)
+    , Tile Angle Deg0 (Just Dog)
+    , Tile Angle Deg0 (Just Fairy)
+    , Tile Angle Deg0 (Just Fish)
+    , Tile Cross Deg0 (Just Frog)
+    , Tile Cross Deg0 (Just Ghost)
+    , Tile Cross Deg0 (Just Horse)
+    , Tile Cross Deg0 (Just Lion)
+    , Tile Cross Deg0 (Just Pig)
+    , Tile Cross Deg0 (Just Armor)
+    ]
+
+
+defaultPlainTiles : List Tile
+defaultPlainTiles =
+    List.repeat 10 (Tile Angle Deg0 Nothing) ++ List.repeat 12 (Tile Straight Deg0 Nothing)
+
+
+defaultTiles : List Tile
+defaultTiles =
+    defaultItemTiles ++ defaultPlainTiles
+
+
+getTile n list =
+    let
+        item =
+            list |> List.drop (n - 1) |> List.head
+    in
+    case item of
+        Just x ->
+            x
+
+        Nothing ->
+            Tile Angle Deg0 Nothing
+
+
+rotate : Rotation -> Tile -> Tile
+rotate rotation tile =
+    { tile | rotation = rotation }

@@ -5,7 +5,8 @@ import Browser.Navigation as Nav
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Lamdera
-import Tile exposing (Item(..), drawTile)
+import Random.List exposing (shuffle)
+import Tile exposing (Item(..), defaultTiles, drawTile, getTile)
 import Types exposing (..)
 import Url
 
@@ -97,39 +98,40 @@ drawLabyrinth =
         , Attr.style "padding" "10px"
         , Attr.style "border-radius" "5px"
         ]
-        ([ drawTile (Tile.Tile Tile.Angle Tile.Deg90 (Just Tile.HomeBlue))
-         , Html.div [] []
-         , drawTile (Tile.Tile Tile.Cross Tile.Deg180 Nothing)
-         , Html.div [] []
-         , drawTile (Tile.Tile Tile.Cross Tile.Deg180 Nothing)
-         , Html.div [] []
-         , drawTile (Tile.Tile Tile.Angle Tile.Deg180 (Just Tile.HomeGreen))
+        ([ Tile.Tile Tile.Angle Tile.Deg90 (Just Tile.HomeBlue)
+         , getTile 1 defaultTiles
+         , Tile.Tile Tile.Cross Tile.Deg180 (Just Tile.Helmet)
+         , getTile 2 defaultTiles
+         , Tile.Tile Tile.Cross Tile.Deg180 (Just Tile.Candle)
+         , getTile 3 defaultTiles
+         , Tile.Tile Tile.Angle Tile.Deg180 (Just Tile.HomeGreen)
          ]
-            ++ List.repeat 7 (Html.div [] [])
-            ++ [ drawTile (Tile.Tile Tile.Cross Tile.Deg90 Nothing)
-               , Html.div [] []
-               , drawTile (Tile.Tile Tile.Cross Tile.Deg90 Nothing)
-               , Html.div [] []
-               , drawTile (Tile.Tile Tile.Cross Tile.Deg180 Nothing)
-               , Html.div [] []
-               , drawTile (Tile.Tile Tile.Cross Tile.Deg270 Nothing)
+            ++ (List.range 13 19 |> List.map (\n -> getTile n defaultTiles))
+            ++ [ Tile.Tile Tile.Cross Tile.Deg90 (Just Tile.Sword)
+               , getTile 4 defaultTiles
+               , Tile.Tile Tile.Cross Tile.Deg90 (Just Tile.Diamond)
+               , getTile 5 defaultTiles
+               , Tile.Tile Tile.Cross Tile.Deg180 (Just Tile.Chest)
+               , getTile 6 defaultTiles
+               , Tile.Tile Tile.Cross Tile.Deg270 (Just Tile.Ring)
                ]
-            ++ List.repeat 7 (Html.div [] [])
-            ++ [ drawTile (Tile.Tile Tile.Cross Tile.Deg90 Nothing)
-               , Html.div [] []
-               , drawTile (Tile.Tile Tile.Cross Tile.Deg0 Nothing)
-               , Html.div [] []
-               , drawTile (Tile.Tile Tile.Cross Tile.Deg270 Nothing)
-               , Html.div [] []
-               , drawTile (Tile.Tile Tile.Cross Tile.Deg270 Nothing)
+            ++ (List.range 20 26 |> List.map (\n -> getTile n defaultTiles))
+            ++ [ Tile.Tile Tile.Cross Tile.Deg90 (Just Tile.Skull)
+               , getTile 7 defaultTiles
+               , Tile.Tile Tile.Cross Tile.Deg0 (Just Tile.Deed)
+               , getTile 8 defaultTiles
+               , Tile.Tile Tile.Cross Tile.Deg270 (Just Tile.Crown)
+               , getTile 9 defaultTiles
+               , Tile.Tile Tile.Cross Tile.Deg270 (Just Tile.Rabbit)
                ]
-            ++ List.repeat 7 (Html.div [] [])
-            ++ [ drawTile (Tile.Tile Tile.Angle Tile.Deg0 (Just HomeRed))
-               , Html.div [] []
-               , drawTile (Tile.Tile Tile.Cross Tile.Deg0 Nothing)
-               , Html.div [] []
-               , drawTile (Tile.Tile Tile.Cross Tile.Deg0 Nothing)
-               , Html.div [] []
-               , drawTile (Tile.Tile Tile.Angle Tile.Deg270 (Just HomeYellow))
+            ++ (List.range 27 33 |> List.map (\n -> Tile.rotate Tile.Deg90 (getTile n defaultTiles)))
+            ++ [ Tile.Tile Tile.Angle Tile.Deg0 (Just Tile.HomeRed)
+               , getTile 10 defaultTiles
+               , Tile.Tile Tile.Cross Tile.Deg0 (Just Tile.Purse)
+               , getTile 11 defaultTiles
+               , Tile.Tile Tile.Cross Tile.Deg0 (Just Tile.Book)
+               , getTile 12 defaultTiles
+               , Tile.Tile Tile.Angle Tile.Deg270 (Just Tile.HomeYellow)
                ]
+            |> List.map drawTile
         )
